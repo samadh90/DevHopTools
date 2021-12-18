@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<PackageId>Tools</PackageId>
+		<Version>1.0.0</Version>
+		<Copyright>crysis90war 2021</Copyright>
+		<Title>Tools for.NET</Title>
+		<Authors>Samad Hatsijev</Authors>
+		<Company>DevHops</Company>
+		<PackageDescription>Mes outils</PackageDescription>
+		<PackageTags>DevHopTools;Connection;Cryptography;MVVM;Commands;ViewModels</PackageTags>
+		<PackageProjectUrl>https://github.com/crysis90war/DevHopTools</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>git://github.com/crysis90war/DevHopTools</RepositoryUrl>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.0.123" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+	</ItemGroup>
+
+</Project>
