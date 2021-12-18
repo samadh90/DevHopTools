@@ -1,0 +1,31 @@
+name: Release to Nuget
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+    - name: Create NuGet Package
+      run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes="See https://github.com/crysis90war/DevHopTools/releases/tag/${{ github.event.release.tag_name }}"
+    - name: Archive NuGet Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: DevHopTools
+        path: ./DevHopTools/bin/Release/DevHopTools.${{ github.event.release.tag_name }}.nupkg
+    - name: Archive NuGet Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: DevHopTools
+        path: ./DevHopTools/bin/Release/DevHopTools.${{ github.event.release.tag_name }}.nupkg
+    - name: Publish Nuget Package
+      run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.nuget_api_key }} --source https://api.nuget.org/v3/index.json --no-symbols true
