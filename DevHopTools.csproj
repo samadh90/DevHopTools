@@ -2,10 +2,10 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<PackageId>Tools</PackageId>
+		<PackageId>DevHopTools</PackageId>
 		<Version>1.0.0</Version>
 		<Copyright>DevHop@2022</Copyright>
-		<Title>Tools for.NET</Title>
+		<Title>DevHopTools</Title>
 		<Authors>Samad Hatsijev</Authors>
 		<Company>DevHops</Company>
 		<PackageDescription>Mes outils</PackageDescription>
