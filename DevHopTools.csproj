@@ -13,7 +13,7 @@
 		<PackageProjectUrl>https://github.com/crysis90war/DevHopTools</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>git://github.com/crysis90war/DevHopTools</RepositoryUrl>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
