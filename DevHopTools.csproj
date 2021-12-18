@@ -8,7 +8,7 @@
 		<Title>DevHopTools</Title>
 		<Authors>Samad Hatsijev</Authors>
 		<Company>DevHops</Company>
-		<PackageDescription>Mes outils</PackageDescription>
+		<PackageDescription>DevHop Tools for multiple puprose</PackageDescription>
 		<PackageTags>DevHopTools;Connection;Cryptography;MVVM;Commands;ViewModels</PackageTags>
 		<PackageProjectUrl>https://github.com/crysis90war/DevHopTools</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
