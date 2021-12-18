@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>Tools</PackageId>
 		<Version>1.0.0</Version>
-		<Copyright>crysis90war 2021</Copyright>
+		<Copyright>DevHop@2022</Copyright>
 		<Title>Tools for.NET</Title>
 		<Authors>Samad Hatsijev</Authors>
 		<Company>DevHops</Company>
@@ -13,7 +13,7 @@
 		<PackageProjectUrl>https://github.com/crysis90war/DevHopTools</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>git://github.com/crysis90war/DevHopTools</RepositoryUrl>
-		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
