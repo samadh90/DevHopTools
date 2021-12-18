@@ -1,4 +1,4 @@
-### Table of contents
+# Table of contents
 
 > * [DevHopTools](#table-of-contents)
 >   * [Code of Conduct](#code-of-conduct)
@@ -15,24 +15,10 @@
 >   * [License](#license)
 >   * [About Nuxeo](#about-nuxeo)
 
-- Contributing to Mumble
-
-      - Code of Conduct
-      - Getting Started
-      - Issues
-      - Pull Requests
-      - Merging Pull Requests
-      - Project board
-
-- NB  
-
-      - Fork-and-Pull
-      - Getting Help
-
-### Code of Conduct
+# Code of Conduct
 ...
 
-### Getting Started
+# Getting Started
 
 Contributions are made to this repo via Issues and Pull Requests (PRs).
 
@@ -41,7 +27,7 @@ To contribute :
 - Search for **existing Issues and PRs before creating your own**.
 - Describe your changes & issues very well by **following our PR & issues templates !**
 
-### Issues
+# Issues
 
 Issues are used to report problems with the library, request a new feature, or to discuss potential changes before a PR is created.
 If you find an issue that addresses the problem you're having, please complete this issue with comments.
@@ -50,7 +36,7 @@ Before you make your changes, please open an issue using a [template](https://gi
 
 **Please don't work on said issue until you have been assigned to it.**
 
-### Pull Requests
+# Pull Requests
 
 PRs are always welcome !
 <br />
@@ -62,30 +48,21 @@ In general, PRs should:
 - Address a single concern in the least number of **changed lines as possible**.
 - **Be accompanied by a complete Pull Request template (loaded automatically when a PR is created)**.
 - **Tag 2 [Reviewers](https://github.com/divanov11/mumbleapi/blob/master/Reviewers.md)**
-#
 
-### Merging Pull Requests
+# Merging Pull Requests
 
 
 1. It's mandatory that the PR author adds reviewers prior to submitting the PR. Tag reviewers in the message. A collaborator of the repo will officially add them in PR as reviewer(s). 
 2. All PRs will require the approval of both reviewers prior to the branch merge. Once the last reviewer approves the changes, they can merge the branch.
 3. The PR author should **add two reviewers; unless the change is so minor (think documentation, code formatting)**. A collaborator will choose a label "Review: Needs 1" **OR** "Review: Needs 2" to further organize the repo and review system.
 
-#
-
-
-### Project Board 
-
+# Project Board 
 ...
 
-#
-
-### NB
-
+# NB
 In general, we follow the **fork-and-pull**
 
-
-#### Steps :
+## Steps :
 
 **1. Fork the repository to your own Github account**
 
