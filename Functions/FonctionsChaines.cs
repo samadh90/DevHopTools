@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace DevHopTools.Fonctions
+namespace DevHopTools.Functions
 {
     public static partial class FonctionsChaines
     {

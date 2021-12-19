@@ -1,4 +1,4 @@
-﻿namespace DevHopTools.Fonctions
+﻿namespace DevHopTools.Functions
 {
     public static partial class FonctionsMatriceDefinitions
     {

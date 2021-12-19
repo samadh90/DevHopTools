@@ -3,12 +3,12 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>DevHopTools</PackageId>
-		<Version>1.0.0</Version>
+		<Version>1.1.0</Version>
 		<Copyright>DevHop@2022</Copyright>
 		<Title>DevHopTools</Title>
 		<Authors>Samad Hatsijev</Authors>
 		<Company>DevHops</Company>
-		<PackageDescription>DevHop Tools for multiple puprose</PackageDescription>
+		<PackageDescription>DevHopTools for multiple puprose</PackageDescription>
 		<PackageTags>DevHopTools;Connection;Cryptography;MVVM;Commands;ViewModels</PackageTags>
 		<PackageProjectUrl>https://github.com/crysis90war/DevHopTools</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>

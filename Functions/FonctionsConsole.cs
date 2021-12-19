@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 
-namespace DevHopTools.Fonctions
+namespace DevHopTools.Functions
 {
     public static partial class FonctionsConsole
     {

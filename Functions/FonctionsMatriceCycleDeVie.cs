@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace DevHopTools.Fonctions
+namespace DevHopTools.Functions
 {
     public static partial class FonctionsMatriceCycleDeVie
     {
