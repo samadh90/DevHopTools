@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace DevHopTools.Mappers
+namespace DevHopTools.Extensions
 {
     public static class MapperExtension
     {
