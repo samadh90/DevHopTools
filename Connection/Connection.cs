@@ -49,7 +49,7 @@ namespace DevHopTools.Connection
                 switch (_dbType)
                 {
                     case DbType.MSSQL:
-                        using (DbConnection dbConnection = CreateSqlConnection())
+                        using (DbConnection dbConnection = CreateConnection())
                         {
                             dbConnection.Open();
                         }
@@ -76,7 +76,7 @@ namespace DevHopTools.Connection
         /// Create an instance of a configured <see cref="DbConnection"/>
         /// </summary>
         /// <returns>A initialized <see cref="DbConnection"/> object with its connection string</returns>
-        private DbConnection CreateSqlConnection()
+        private DbConnection CreateConnection()
         {
             DbConnection dbConnection = _providerFactory.CreateConnection();
             dbConnection.ConnectionString = _connectionString;
@@ -137,7 +137,7 @@ namespace DevHopTools.Connection
         /// <returns>The number of rows affected</returns>
         private int ExecuteSqlNonQuery(Command command)
         {
-            using (DbConnection dbConnection = CreateSqlConnection())
+            using (DbConnection dbConnection = CreateConnection())
             {
                 using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
                 {
@@ -179,7 +179,7 @@ namespace DevHopTools.Connection
         /// <returns>A <see cref="IEnumerable{T}"/> of type <typeparamref name="TResult"/></returns>
         private IEnumerable<TResult> ExecuteSqlReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
         {
-            using (DbConnection dbConnection = CreateSqlConnection())
+            using (DbConnection dbConnection = CreateConnection())
             {
                 using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
                 {
@@ -205,7 +205,7 @@ namespace DevHopTools.Connection
         /// <returns>The desired unique object from database</returns>
         public object ExecuteScalar(Command command)
         {
-            using (DbConnection dbConnection = CreateSqlConnection())
+            using (DbConnection dbConnection = CreateConnection())
             {
                 using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
                 {
@@ -227,7 +227,7 @@ namespace DevHopTools.Connection
         /// <returns></returns>
         private object ExecuteSqlScalar(Command command)
         {
-            using (DbConnection dbConnection = CreateSqlConnection())
+            using (DbConnection dbConnection = CreateConnection())
             {
                 using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
                 {
@@ -244,7 +244,7 @@ namespace DevHopTools.Connection
 
         public DataTable GetDataTable(Command command)
         {
-            using (DbConnection dbConnection = CreateSqlConnection())
+            using (DbConnection dbConnection = CreateConnection())
             {
                 using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
                 {
@@ -265,7 +265,7 @@ namespace DevHopTools.Connection
 
         public DataSet GetDataSet(Command command)
         {
-            using (DbConnection dbConnection = CreateSqlConnection())
+            using (DbConnection dbConnection = CreateConnection())
             {
                 using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
                 {

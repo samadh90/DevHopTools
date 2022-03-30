@@ -1,5 +1,4 @@
-﻿using MySqlConnector;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -7,27 +6,27 @@ using System.Text;
 
 namespace DevHopTools.Connection
 {
-    internal static class MySql
+    internal static class MSSQL
     {
         /// <summary>
-        /// Create an instance of <see cref="MySqlConnection"/> with the connection string and database provider factory
+        /// Create an instance of <see cref="DbConnection"/> with the connection string and database provider factory
         /// </summary>
         /// <param name="connectionString">Complete connection string</param>
         /// <param name="providerFactory">Valable provider factory</param>
         /// <returns>A <see cref="MySqlConnection"/> object</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        internal static MySqlConnection CreateConnection(string connectionString, DbProviderFactory providerFactory)
+        internal static DbConnection CreateConnection(string connectionString, DbProviderFactory providerFactory)
         {
             if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
             if (connectionString.Length == 0)
                 throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
 
-            MySqlConnection mySqlConnection = (MySqlConnection)providerFactory.CreateConnection();
-            mySqlConnection.ConnectionString = connectionString;
+            DbConnection dbConnection = providerFactory.CreateConnection();
+            dbConnection.ConnectionString = connectionString;
 
-            return mySqlConnection;
+            return dbConnection;
         }
 
         /// <summary>
@@ -47,15 +46,15 @@ namespace DevHopTools.Connection
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (MySqlConnection mySqlConnection = CreateConnection(connectionString, providerFactory))
+            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
             {
-                using (MySqlCommand mySqlCommand = CreateCommand(command, mySqlConnection))
+                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
                 {
-                    mySqlConnection.Open();
-                    int rows = mySqlCommand.ExecuteNonQuery();
+                    dbConnection.Open();
+                    int rows = dbCommand.ExecuteNonQuery();
 
                     if (command.IsStoredProcedure)
-                        FinalizeQuery(command, mySqlCommand);
+                        FinalizeQuery(command, dbCommand);
 
                     return rows;
                 }
@@ -83,21 +82,21 @@ namespace DevHopTools.Connection
             if (command is null) throw new ArgumentNullException(nameof(command));
             if (selector is null) throw new ArgumentNullException(nameof(selector));
 
-            using (MySqlConnection mySqlConnection = CreateConnection(connectionString, providerFactory))
+            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
             {
-                using (MySqlCommand mySqlCommand = CreateCommand(command, mySqlConnection))
+                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
                 {
-                    mySqlConnection.Open();
-                    using (MySqlDataReader mySqlDataReader = mySqlCommand.ExecuteReader())
+                    dbConnection.Open();
+                    using (DbDataReader dataReader = dbCommand.ExecuteReader())
                     {
-                        while (mySqlDataReader.Read())
+                        while (dataReader.Read())
                         {
-                            yield return selector(mySqlDataReader);
+                            yield return selector(dataReader);
                         }
                     }
 
                     if (command.IsStoredProcedure)
-                        FinalizeQuery(command, mySqlCommand);
+                        FinalizeQuery(command, dbCommand);
                 }
             }
         }
@@ -119,15 +118,15 @@ namespace DevHopTools.Connection
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (MySqlConnection mySqlConnection = CreateConnection(connectionString, providerFactory))
+            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
             {
-                using (MySqlCommand mySqlCommand = CreateCommand(command, mySqlConnection))
+                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
                 {
-                    mySqlConnection.Open();
-                    object result = mySqlCommand.ExecuteScalar();
+                    dbConnection.Open();
+                    object result = dbCommand.ExecuteScalar();
 
                     if (command.IsStoredProcedure)
-                        FinalizeQuery(command, mySqlCommand);
+                        FinalizeQuery(command, dbCommand);
 
                     return result is DBNull ? null : result;
                 }
@@ -152,18 +151,18 @@ namespace DevHopTools.Connection
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (MySqlConnection mySqlConnection = CreateConnection(connectionString, providerFactory))
+            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
             {
-                using (MySqlCommand mySqlCommand = CreateCommand(command, mySqlConnection))
+                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
                 {
-                    using (MySqlDataAdapter mySqlDataAdapter = (MySqlDataAdapter)providerFactory.CreateDataAdapter())
+                    using (DbDataAdapter dbDataAdapter = providerFactory.CreateDataAdapter())
                     {
                         DataTable dataTable = new DataTable();
-                        mySqlDataAdapter.SelectCommand = mySqlCommand;
-                        mySqlDataAdapter.Fill(dataTable);
+                        dbDataAdapter.SelectCommand = dbCommand;
+                        dbDataAdapter.Fill(dataTable);
 
                         if (command.IsStoredProcedure)
-                            FinalizeQuery(command, mySqlCommand);
+                            FinalizeQuery(command, dbCommand);
 
                         return dataTable;
                     }
@@ -189,18 +188,18 @@ namespace DevHopTools.Connection
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (MySqlConnection mySqlConnection = CreateConnection(connectionString, providerFactory))
+            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
             {
-                using (MySqlCommand mySqlCommand = CreateCommand(command, mySqlConnection))
+                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
                 {
-                    using (MySqlDataAdapter mySqlDataAdapter = (MySqlDataAdapter)providerFactory.CreateDataAdapter())
+                    using (DbDataAdapter dbDataAdapter = providerFactory.CreateDataAdapter())
                     {
                         DataSet dataSet = new DataSet();
-                        mySqlDataAdapter.SelectCommand = mySqlCommand;
-                        mySqlDataAdapter.Fill(dataSet);
+                        dbDataAdapter.SelectCommand = dbCommand;
+                        dbDataAdapter.Fill(dataSet);
 
                         if (command.IsStoredProcedure)
-                            FinalizeQuery(command, mySqlCommand);
+                            FinalizeQuery(command, dbCommand);
 
                         return dataSet;
                     }
@@ -209,54 +208,54 @@ namespace DevHopTools.Connection
         }
 
         /// <summary>
-        /// Create a <see cref="MySqlCommand"/> object from <paramref name="connection"/> object with keys 
+        /// Create a <see cref="DbCommand"/> object from <paramref name="dbConnection"/> object with keys 
         /// and values of <paramref name="command"/>
         /// </summary>
         /// <param name="command">Valid object of type <see cref="Command"/></param>
-        /// <param name="connection">A non null and valid <see cref="MySqlConnection"/> object</param>
-        /// <returns>A new instance of <see cref="MySqlCommand"/></returns>
-        private static MySqlCommand CreateCommand(Command command, MySqlConnection connection)
+        /// <param name="dbConnection">A non null and valid <see cref="DbConnection"/> object</param>
+        /// <returns>A new instance of <see cref="DbCommand"/></returns>
+        private static DbCommand CreateCommand(Command command, DbConnection dbConnection)
         {
             if (command is null) throw new ArgumentNullException(nameof(command));
-            if (connection is null) throw new ArgumentNullException(nameof(connection));
+            if (dbConnection is null) throw new ArgumentNullException(nameof(dbConnection));
 
-            MySqlCommand mySqlCommand = connection.CreateCommand();
-            mySqlCommand.CommandText = command.Query;
+            DbCommand dbCommand = dbConnection.CreateCommand();
+            dbCommand.CommandText = command.Query;
 
             if (command.IsStoredProcedure)
-                mySqlCommand.CommandType = CommandType.StoredProcedure;
+                dbCommand.CommandType = CommandType.StoredProcedure;
 
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
-                MySqlParameter mySqlParameter = mySqlCommand.CreateParameter();
-                mySqlParameter.ParameterName = parameter.Key;
-                mySqlParameter.Value = parameter.Value.ParameterValue;
+                DbParameter dbParameter = dbCommand.CreateParameter();
+                dbParameter.ParameterName = parameter.Key;
+                dbParameter.Value = parameter.Value.ParameterValue;
 
                 if (parameter.Value.Direction == Direction.Output)
-                    mySqlParameter.Direction = ParameterDirection.Output;
+                    dbParameter.Direction = ParameterDirection.Output;
 
-                mySqlCommand.Parameters.Add(mySqlParameter);
+                dbCommand.Parameters.Add(dbParameter);
             }
 
-            return mySqlCommand;
+            return dbCommand;
         }
 
         /// <summary>
-        /// Finalize the <paramref name="mySqlCommand"/> object's Parameters value if <see cref="Direction"/> is 
+        /// Finalize the <paramref name="dbCommand"/> object's Parameters value if <see cref="Direction"/> is 
         /// <see cref="Direction.Output"/>
         /// </summary>
         /// <param name="command">Valid object of type <see cref="Command"/></param>
-        /// <param name="mySqlCommand">A valid, not null <see cref="MySqlCommand"/> object</param>
-        private static void FinalizeQuery(Command command, MySqlCommand mySqlCommand)
+        /// <param name="dbCommand">A valid, not null <see cref="DbCommand"/> object</param>
+        private static void FinalizeQuery(Command command, DbCommand dbCommand)
         {
             if (command is null) throw new ArgumentNullException(nameof(command));
-            if (mySqlCommand is null) throw new ArgumentNullException(nameof(mySqlCommand));
+            if (dbCommand is null) throw new ArgumentNullException(nameof(dbCommand));
 
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
                 if (parameter.Value.Direction == Direction.Output)
                 {
-                    parameter.Value.ParameterValue = mySqlCommand.Parameters[parameter.Key].Value;
+                    parameter.Value.ParameterValue = dbCommand.Parameters[parameter.Key].Value;
                 }
             }
         }
