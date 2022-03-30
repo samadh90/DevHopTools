@@ -85,18 +85,6 @@ namespace DevHopTools.Connection
         }
 
         /// <summary>
-        /// Create an instance of configured <see cref="MySql"/>
-        /// </summary>
-        /// <returns>A initialized <see cref="MySql"/> object with its connection string</returns>
-        private MySql CreateMySqlConnection()
-        {
-            MySql mySqlConnection = (MySql)_providerFactory.CreateConnection();
-            mySqlConnection.ConnectionString = _connectionString;
-
-            return mySqlConnection;
-        }
-
-        /// <summary>
         /// Create an instance of <see cref="DbCommand"/> 
         /// </summary>
         /// <param name="command"></param>
@@ -136,7 +124,7 @@ namespace DevHopTools.Connection
             switch (_dbType)
             {
                 case DbType.MSSQL: return ExecuteNonQuery(command);
-                case DbType.MySQL: return ExecuteMySqlNonQuery(command);
+                case DbType.MySQL: return MySql.ExecuteNonQuery(_connectionString, _providerFactory, command);
                 default:
                     throw new InvalidOperationException($"Provided database type is not valid!");
             }
@@ -176,7 +164,7 @@ namespace DevHopTools.Connection
             switch (_dbType)
             {
                 case DbType.MSSQL: return ExecuteSqlReader(command, selector);
-                case DbType.MySQL: return ExecuteMySqlReader(command, selector);
+                case DbType.MySQL: return MySql.ExecuteReader(_connectionString, _providerFactory, command, selector);
                 default:
                     throw new InvalidOperationException($"Provided database type is not valid!");
             }
