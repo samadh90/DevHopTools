@@ -103,7 +103,7 @@ namespace DevHopTools.Connection
         }
 
         /// <summary>
-        /// Execute a <see cref="Command"/> to retrieve only one object from the database
+        /// Execute a <see cref="Command"/> to retrieve only one fied value from the database
         /// </summary>
         /// <param name="connectionString">Complete database connection string</param>
         /// <param name="providerFactory">Valid object of type <see cref="DbProviderFactory"/></param>

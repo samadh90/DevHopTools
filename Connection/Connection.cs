@@ -108,7 +108,7 @@ namespace DevHopTools.Connection
         }
 
         /// <summary>
-        /// Execute query and retrieve only one data
+        /// Execute query and retrieve only one field value
         /// </summary>
         /// <param name="command"></param>
         /// <returns>The desired unique object from database</returns>
