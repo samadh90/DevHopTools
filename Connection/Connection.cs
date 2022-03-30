@@ -49,7 +49,7 @@ namespace DevHopTools.Connection
                 switch (_dbType)
                 {
                     case DbType.MSSQL:
-                        using (DbConnection dbConnection = CreateConnection())
+                        using (DbConnection dbConnection = MSSQL.CreateConnection(_connectionString, _providerFactory))
                         {
                             dbConnection.Open();
                         }
@@ -73,47 +73,6 @@ namespace DevHopTools.Connection
         }
 
         /// <summary>
-        /// Create an instance of a configured <see cref="DbConnection"/>
-        /// </summary>
-        /// <returns>A initialized <see cref="DbConnection"/> object with its connection string</returns>
-        private DbConnection CreateConnection()
-        {
-            DbConnection dbConnection = _providerFactory.CreateConnection();
-            dbConnection.ConnectionString = _connectionString;
-
-            return dbConnection;
-        }
-
-        /// <summary>
-        /// Create an instance of <see cref="DbCommand"/> 
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="dbConnection"></param>
-        /// <returns>A new instance of initialized <see cref="DbCommand"/> object</returns>
-        private static DbCommand CreateSqlCommand(Command command, DbConnection dbConnection)
-        {
-            DbCommand dbCommand = dbConnection.CreateCommand();
-            dbCommand.CommandText = command.Query;
-
-            if (command.IsStoredProcedure)
-                dbCommand.CommandType = CommandType.StoredProcedure;
-
-            foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
-            {
-                DbParameter dbParameter = dbCommand.CreateParameter();
-                dbParameter.ParameterName = parameter.Key;
-                dbParameter.Value = parameter.Value.ParameterValue;
-
-                if (parameter.Value.Direction == Direction.Output)
-                    dbParameter.Direction = ParameterDirection.Output;
-
-                dbCommand.Parameters.Add(dbParameter);
-            }
-
-            return dbCommand;
-        }
-
-        /// <summary>
         /// Execute a query and returns the number of row affected
         /// </summary>
         /// <param name="command"></param>
@@ -123,32 +82,10 @@ namespace DevHopTools.Connection
         {
             switch (_dbType)
             {
-                case DbType.MSSQL: return ExecuteNonQuery(command);
+                case DbType.MSSQL: return MSSQL.ExecuteNonQuery(_connectionString, _providerFactory, command);
                 case DbType.MySQL: return MySql.ExecuteNonQuery(_connectionString, _providerFactory, command);
                 default:
                     throw new InvalidOperationException($"Provided database type is not valid!");
-            }
-        }
-
-        /// <summary>
-        /// Execute a query and returns the number of row affected for MSSQL database type
-        /// </summary>
-        /// <param name="command">An object of type <see cref="Command"/> with the desired query</param>
-        /// <returns>The number of rows affected</returns>
-        private int ExecuteSqlNonQuery(Command command)
-        {
-            using (DbConnection dbConnection = CreateConnection())
-            {
-                using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
-                {
-                    dbConnection.Open();
-                    int rows = dbCommand.ExecuteNonQuery();
-
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
-
-                    return rows;
-                }
             }
         }
 
@@ -163,38 +100,10 @@ namespace DevHopTools.Connection
         {
             switch (_dbType)
             {
-                case DbType.MSSQL: return ExecuteSqlReader(command, selector);
+                case DbType.MSSQL: return MSSQL.ExecuteReader(_connectionString, _providerFactory, command, selector);
                 case DbType.MySQL: return MySql.ExecuteReader(_connectionString, _providerFactory, command, selector);
                 default:
                     throw new InvalidOperationException($"Provided database type is not valid!");
-            }
-        }
-
-        /// <summary>
-        /// Execute a query and retrieve selected fields values from a Microsoft SQL Database
-        /// </summary>
-        /// <typeparam name="TResult">The type of the object with want to retrieve</typeparam>
-        /// <param name="command">The SQL Command</param>
-        /// <param name="selector">Callback function to map the values from database to the desired type</param>
-        /// <returns>A <see cref="IEnumerable{T}"/> of type <typeparamref name="TResult"/></returns>
-        private IEnumerable<TResult> ExecuteSqlReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
-        {
-            using (DbConnection dbConnection = CreateConnection())
-            {
-                using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
-                {
-                    dbConnection.Open();
-                    using (DbDataReader dataReader = dbCommand.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                        {
-                            yield return selector(dataReader);
-                        }
-                    }
-
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
-                }
             }
         }
 
@@ -205,93 +114,36 @@ namespace DevHopTools.Connection
         /// <returns>The desired unique object from database</returns>
         public object ExecuteScalar(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            switch (_dbType)
             {
-                using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
-                {
-                    dbConnection.Open();
-                    object result = dbCommand.ExecuteScalar();
-
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
-
-                    return result is DBNull ? null : result;
-                }
+                case DbType.MSSQL: return MSSQL.ExecuteScalar(_connectionString, _providerFactory, command);
+                case DbType.MySQL: return MySql.ExecuteScalar(_connectionString, _providerFactory, command);
+                default:
+                    throw new InvalidOperationException($"Provided database type is not valid!");
             }
         }
 
-        /// <summary>
-        /// The private method of <see cref="ExecuteScalar(Command)"/> for Microsoft SQL databases
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        private object ExecuteSqlScalar(Command command)
-        {
-            using (DbConnection dbConnection = CreateConnection())
-            {
-                using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
-                {
-                    dbConnection.Open();
-                    object result = dbCommand.ExecuteScalar();
-
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
-
-                    return result is DBNull ? null : result;
-                }
-            }
-        }
-
+        // TODO : Write a good complete comment
         public DataTable GetDataTable(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            switch (_dbType)
             {
-                using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
-                {
-                    using (DbDataAdapter dbDataAdapter = _providerFactory.CreateDataAdapter())
-                    {
-                        DataTable dataTable = new DataTable();
-                        dbDataAdapter.SelectCommand = dbCommand;
-                        dbDataAdapter.Fill(dataTable);
-
-                        if (command.IsStoredProcedure)
-                            FinalizeQuery(command, dbCommand);
-
-                        return dataTable;
-                    }
-                }
+                case DbType.MSSQL: return MSSQL.GetDataTable(_connectionString, _providerFactory, command);
+                case DbType.MySQL: return MySql.GetDataTable(_connectionString, _providerFactory, command);
+                default:
+                    throw new InvalidOperationException($"Provided database type is not valid!");
             }
         }
 
+        // TODO : Write a good complete comment
         public DataSet GetDataSet(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            switch (_dbType)
             {
-                using (DbCommand dbCommand = CreateSqlCommand(command, dbConnection))
-                {
-                    using (DbDataAdapter dbDataAdapter = _providerFactory.CreateDataAdapter())
-                    {
-                        DataSet dataSet = new DataSet();
-                        dbDataAdapter.SelectCommand = dbCommand;
-                        dbDataAdapter.Fill(dataSet);
-
-                        if (command.IsStoredProcedure)
-                            FinalizeQuery(command, dbCommand);
-
-                        return dataSet;
-                    }
-                }
-            }
-        }
-
-        private void FinalizeQuery(Command command, DbCommand dbCommand)
-        {
-            foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
-            {
-                if (parameter.Value.Direction == Direction.Output)
-                {
-                    parameter.Value.ParameterValue = dbCommand.Parameters[parameter.Key].Value;
-                }
+                case DbType.MSSQL: return MSSQL.GetDataSet(_connectionString, _providerFactory, command);
+                case DbType.MySQL: return MySql.GetDataSet(_connectionString, _providerFactory, command);
+                default:
+                    throw new InvalidOperationException($"Provided database type is not valid!");
             }
         }
     }
