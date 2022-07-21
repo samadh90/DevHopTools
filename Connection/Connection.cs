@@ -24,6 +24,41 @@ namespace DevHopTools.Connection
         private readonly DbType _dbType;
 
         /// <summary>
+        /// Default connection MS SQL
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="providerFactory"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Connection(string connectionString, DbProviderFactory providerFactory)
+        {
+            if (providerFactory is null)
+            {
+                throw new ArgumentException("providerFactory is not valid !");
+            }
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new ArgumentException("connectionString is not valid !");
+            }
+
+            _connectionString = connectionString;
+            _providerFactory = providerFactory;
+
+            try
+            {
+                using (DbConnection dbConnection = CreateConnection())
+                {
+                    dbConnection.Open();
+                }
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("the connection string is not valid or the server is down...");
+            }
+        }
+
+        /// <summary>
         /// Create an instance of the <see cref="Connection"/> taking the <paramref name="connectionString"/>,
         /// <paramref name="providerFactory"/> and <paramref name="dbType"/>
         /// </summary>
@@ -145,6 +180,14 @@ namespace DevHopTools.Connection
                 default:
                     throw new InvalidOperationException($"Provided database type is not valid!");
             }
+        }
+
+        private DbConnection CreateConnection()
+        {
+            DbConnection dbConnection = _providerFactory.CreateConnection();
+            dbConnection.ConnectionString = _connectionString;
+
+            return dbConnection;
         }
     }
 }
