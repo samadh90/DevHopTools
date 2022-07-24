@@ -1,39 +1,38 @@
-
 ## Description
 
-Veuillez inclure un résumé de la modification et du problème résolu. Veuillez également inclure la motivation et le contexte pertinents. Répertoriez toutes les dépendances requises pour cette modification.
+Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
 
 Fixes # (issue)
 
-## Type de changement
+## Type of change
 
-Veuillez supprimer les options qui ne sont pas pertinentes.
+Please delete options that are not relevant.
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] This change requires a documentation update
 
-# Comment cela a-t-il été testé ?
+# How Has This Been Tested?
 
-Veuillez décrire les tests que vous avez exécutés pour vérifier vos modifications. Fournissez des instructions afin que nous puissions reproduire. Veuillez également énumérer tous les détails pertinents pour votre configuration de test
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
 
 - [ ] Test A
 - [ ] Test B
 
-**Configuration du test**:
+**Test Configuration**:
 * Firmware version:
 * Hardware:
 * Toolchain:
 * SDK:
 
-# Liste de contrôle :
+# Checklist:
 
-- [ ] Mon code suit les directives de style de ce projet
-- [ ] J'ai effectué une auto-révision de mon propre code
-- [ ] J'ai commenté mon code, en particulier dans les zones difficiles à comprendre
-- [ ] J'ai apporté les modifications correspondantes à la documentation
-- [ ] Mes modifications ne génèrent aucun nouvel avertissement
-- [ ] J'ai ajouté des tests qui prouvent que mon correctif est efficace ou que ma fonctionnalité fonctionne
-- [ ] Les tests unitaires nouveaux et existants passent localement avec mes modifications
-- [ ] Toutes les modifications dépendantes ont été fusionnées et publiées dans les modules en aval
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published in downstream modules
