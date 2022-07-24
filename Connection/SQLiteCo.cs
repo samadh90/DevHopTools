@@ -1,44 +1,40 @@
-﻿using System;
+﻿using Microsoft.Data.Sqlite;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace DevHopTools.Connection
 {
-    public class MsSqlCon : BaseConnection<DbConnection, DbCommand>, IConnection
+    /// <summary>
+    /// WARNING !
+    /// SQLite does not provide the stored procedure concept;
+    /// basically, stored procedure means we can prepare a single code, and that code we can reuse again and again as per user requirement. 
+    /// When we create the stored procedure, that means once we create the stored procedure that procedure, we can just call in your SQL statement to execute it.
+    /// </summary>
+    public class SQLiteCo : BaseConnection<SqliteConnection, SqliteCommand>, IConnection
     {
-        public MsSqlCon(string connectionString)
+        public SQLiteCo(string connectionString)
         {
-            if (_connectionString is null)
-            {
-                throw new ArgumentNullException(nameof(_connectionString));
-            }
-
-            if (_connectionString.Length == 0)
+            if (_connectionString.Length == 0 || string.IsNullOrWhiteSpace(_connectionString))
             {
                 throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
             }
 
             _connectionString = connectionString;
-            _providerFactory = SqlClientFactory.Instance;
+            _providerFactory = SqliteFactory.Instance;
         }
 
-        public MsSqlCon(string connectionString, DbProviderFactory providerFactory)
+        public SQLiteCo(string connectionString, DbProviderFactory providerFactory)
         {
-            if (_connectionString is null)
-            {
-                throw new ArgumentNullException(nameof(_connectionString));
-            }
-
-            if (_connectionString.Length == 0)
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
             if (_providerFactory is null)
             {
-                throw new ArgumentNullException(nameof(_providerFactory));
+                throw new ArgumentNullException($"{nameof(_providerFactory)}  is not valid !");
+            }
+
+            if (_connectionString.Length == 0 || string.IsNullOrWhiteSpace(_connectionString))
+            {
+                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
             }
 
             _connectionString = connectionString;
@@ -47,9 +43,9 @@ namespace DevHopTools.Connection
 
         public int ExecuteNonQuery(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            using (SqliteConnection dbConnection = CreateConnection())
             {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                using (SqliteCommand dbCommand = CreateCommand(command, dbConnection))
                 {
                     dbConnection.Open();
                     int rows = dbCommand.ExecuteNonQuery();
@@ -66,12 +62,12 @@ namespace DevHopTools.Connection
 
         public IEnumerable<TResult> ExecuteReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            using (SqliteConnection dbConnection = CreateConnection())
             {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                using (SqliteCommand dbCommand = CreateCommand(command, dbConnection))
                 {
                     dbConnection.Open();
-                    using (DbDataReader dataReader = dbCommand.ExecuteReader())
+                    using (SqliteDataReader dataReader = dbCommand.ExecuteReader())
                     {
                         while (dataReader.Read())
                         {
@@ -89,9 +85,9 @@ namespace DevHopTools.Connection
 
         public object ExecuteScalar(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            using (SqliteConnection dbConnection = CreateConnection())
             {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                using (SqliteCommand dbCommand = CreateCommand(command, dbConnection))
                 {
                     dbConnection.Open();
                     object result = dbCommand.ExecuteScalar();
@@ -108,11 +104,11 @@ namespace DevHopTools.Connection
 
         public DataSet GetDataSet(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            using (SqliteConnection dbConnection = CreateConnection())
             {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                using (SqliteCommand dbCommand = CreateCommand(command, dbConnection))
                 {
-                    using (DbDataAdapter dbDataAdapter = _providerFactory.CreateDataAdapter())
+                    using (var dbDataAdapter = _providerFactory.CreateDataAdapter())
                     {
                         DataSet dataSet = new DataSet();
                         dbDataAdapter.SelectCommand = dbCommand;
@@ -131,9 +127,9 @@ namespace DevHopTools.Connection
 
         public DataTable GetDataTable(Command command)
         {
-            using (DbConnection dbConnection = CreateConnection())
+            using (SqliteConnection dbConnection = CreateConnection())
             {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                using (SqliteCommand dbCommand = CreateCommand(command, dbConnection))
                 {
                     using (DbDataAdapter dbDataAdapter = _providerFactory.CreateDataAdapter())
                     {
@@ -152,9 +148,9 @@ namespace DevHopTools.Connection
             }
         }
 
-        internal override DbCommand CreateCommand(Command command, DbConnection dbConnection)
+        internal override SqliteCommand CreateCommand(Command command, SqliteConnection dbConnection)
         {
-            DbCommand dbCommand = dbConnection.CreateCommand();
+            SqliteCommand dbCommand = dbConnection.CreateCommand();
             dbCommand.CommandText = command.Query;
 
             if (command.IsStoredProcedure)
@@ -179,15 +175,15 @@ namespace DevHopTools.Connection
             return dbCommand;
         }
 
-        internal override DbConnection CreateConnection()
+        internal override SqliteConnection CreateConnection()
         {
-            DbConnection dbConnection = _providerFactory.CreateConnection();
+            SqliteConnection dbConnection = (SqliteConnection)_providerFactory.CreateConnection();
             dbConnection.ConnectionString = _connectionString;
 
             return dbConnection;
         }
 
-        internal override void FinalizeQuery(Command command, DbCommand dbCommand)
+        internal override void FinalizeQuery(Command command, SqliteCommand dbCommand)
         {
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
