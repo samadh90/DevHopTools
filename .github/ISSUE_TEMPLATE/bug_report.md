@@ -1,46 +1,38 @@
-### Preflight Checklist
+---
+name: Bug report
+about: Create a report to help us improve
+title: "[BUG]"
+labels: bug
+assignees: ''
 
-<!-- Please ensure you've completed the following steps by replacing [ ] with [x]-->
+---
 
-- [ ] I searched the issue tracker for an issue that matches the one I want to file, with no success.
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-#
-
-### Describe the bug
-
-**A clear and concise description of what the bug is.**
-
-#
-
-### Reproduce
-
-Steps to reproduce the behavior :
-
-1. Access to «...»
-2. Click on "...."
-3. Scroll to «....»
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
 4. See error
 
-#
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-### What was expected ?
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-**A clear and concise description of what you expected.**
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
 
-#
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
 
-### Screenshots
-
-<!-- While providing screenshots, delete the text below !-->
-
-<!-- try as much as possible to explain each change in each screenshot !-->
-
-<!-- Don't forget to delete the p element while providing screeshots !-->
-
-<p align="center">If applicable, add screenshots to explain your issue.</p>
-
-#
-
-### Additional context
-
-**Add any other context about the issue here (include commit numbers and branches if applicable)**
+**Additional context**
+Add any other context about the problem here.
