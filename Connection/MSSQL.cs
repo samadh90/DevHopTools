@@ -2,33 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Text;
 
 namespace DevHopTools.Connection
 {
     internal static class MSSQL
     {
-        /// <summary>
-        /// Create an instance of <see cref="DbConnection"/> with the connection string and database provider factory
-        /// </summary>
-        /// <param name="connectionString">Complete connection string</param>
-        /// <param name="providerFactory">Valable provider factory</param>
-        /// <returns>A <see cref="MySqlConnection"/> object</returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        internal static DbConnection CreateConnection(string connectionString, DbProviderFactory providerFactory)
-        {
-            if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
-            if (connectionString.Length == 0)
-                throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
-            if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
-
-            DbConnection dbConnection = providerFactory.CreateConnection();
-            dbConnection.ConnectionString = connectionString;
-
-            return dbConnection;
-        }
-
         /// <summary>
         /// Execute a query and returns the number of row affected
         /// </summary>
@@ -41,24 +19,18 @@ namespace DevHopTools.Connection
         internal static int ExecuteNonQuery(string connectionString, DbProviderFactory providerFactory, Command command)
         {
             if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
-            if (connectionString.Length == 0)
-                throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
+            if (connectionString.Length == 0) throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
-            {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
-                {
-                    dbConnection.Open();
-                    int rows = dbCommand.ExecuteNonQuery();
+            using DbConnection dbConnection = CreateConnection(connectionString, providerFactory);
+            using DbCommand dbCommand = CreateCommand(command, dbConnection);
+            dbConnection.Open();
+            int rows = dbCommand.ExecuteNonQuery();
 
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
+            if (command.IsStoredProcedure) FinalizeQuery(command, dbCommand);
 
-                    return rows;
-                }
-            }
+            return rows;
         }
 
         /// <summary>
@@ -72,33 +44,26 @@ namespace DevHopTools.Connection
         /// <returns>A <see cref="IEnumerable{T}"/> with <c>T</c> being of type <typeparamref name="TResult"/></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        internal static IEnumerable<TResult> ExecuteReader<TResult>(string connectionString, DbProviderFactory providerFactory,
-            Command command, Func<IDataRecord, TResult> selector)
+        internal static IEnumerable<TResult> ExecuteReader<TResult>(string connectionString, DbProviderFactory providerFactory, Command command, Func<IDataRecord, TResult> selector)
         {
             if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
-            if (connectionString.Length == 0)
-                throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
+            if (connectionString.Length == 0) throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
             if (selector is null) throw new ArgumentNullException(nameof(selector));
 
-            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
+            using DbConnection dbConnection = CreateConnection(connectionString, providerFactory);
+            using DbCommand dbCommand = CreateCommand(command, dbConnection);
+            dbConnection.Open();
+            using (DbDataReader dataReader = dbCommand.ExecuteReader())
             {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                while (dataReader.Read())
                 {
-                    dbConnection.Open();
-                    using (DbDataReader dataReader = dbCommand.ExecuteReader())
-                    {
-                        while (dataReader.Read())
-                        {
-                            yield return selector(dataReader);
-                        }
-                    }
-
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
+                    yield return selector(dataReader);
                 }
             }
+
+            if (command.IsStoredProcedure) FinalizeQuery(command, dbCommand);
         }
 
         /// <summary>
@@ -113,98 +78,75 @@ namespace DevHopTools.Connection
         internal static object ExecuteScalar(string connectionString, DbProviderFactory providerFactory, Command command)
         {
             if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
-            if (connectionString.Length == 0)
-                throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
+            if (connectionString.Length == 0) throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
-
-            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
-            {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
-                {
-                    dbConnection.Open();
-                    object result = dbCommand.ExecuteScalar();
-
-                    if (command.IsStoredProcedure)
-                        FinalizeQuery(command, dbCommand);
-
-                    return result is DBNull ? null : result;
-                }
-            }
+            using DbConnection dbConnection = CreateConnection(connectionString, providerFactory);
+            using DbCommand dbCommand = CreateCommand(command, dbConnection);
+            dbConnection.Open();
+            object result = dbCommand.ExecuteScalar();
+            if (command.IsStoredProcedure) FinalizeQuery(command, dbCommand);
+            return result is DBNull ? null : result;
         }
 
         // TODO : Write a complete comment
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connectionString">Complete database connection string</param>
-        /// <param name="providerFactory">Valid object of type <see cref="DbProviderFactory"/></param>
-        /// <param name="command">Valid object of type <see cref="Command"/></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
         internal static DataTable GetDataTable(string connectionString, DbProviderFactory providerFactory, Command command)
         {
             if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
-            if (connectionString.Length == 0)
-                throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
+            if (connectionString.Length == 0) throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
-            {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
-                {
-                    using (DbDataAdapter dbDataAdapter = providerFactory.CreateDataAdapter())
-                    {
-                        DataTable dataTable = new DataTable();
-                        dbDataAdapter.SelectCommand = dbCommand;
-                        dbDataAdapter.Fill(dataTable);
+            using DbConnection dbConnection = CreateConnection(connectionString, providerFactory);
+            using DbCommand dbCommand = CreateCommand(command, dbConnection);
+            using DbDataAdapter dbDataAdapter = providerFactory.CreateDataAdapter();
+            DataTable dataTable = new DataTable();
+            dbDataAdapter.SelectCommand = dbCommand;
+            dbDataAdapter.Fill(dataTable);
 
-                        if (command.IsStoredProcedure)
-                            FinalizeQuery(command, dbCommand);
+            if (command.IsStoredProcedure) FinalizeQuery(command, dbCommand);
 
-                        return dataTable;
-                    }
-                }
-            }
+            return dataTable;
         }
 
         // TODO : Write a complete comment
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="connectionString">Complete database connection string</param>
-        /// <param name="providerFactory">Valid object of type <see cref="DbProviderFactory"/></param>
-        /// <param name="command">Valid object of type <see cref="Command"/></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
         internal static DataSet GetDataSet(string connectionString, DbProviderFactory providerFactory, Command command)
         {
             if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
-            if (connectionString.Length == 0)
-                throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
+            if (connectionString.Length == 0) throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
             if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
             if (command is null) throw new ArgumentNullException(nameof(command));
 
-            using (DbConnection dbConnection = CreateConnection(connectionString, providerFactory))
-            {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
-                {
-                    using (DbDataAdapter dbDataAdapter = providerFactory.CreateDataAdapter())
-                    {
-                        DataSet dataSet = new DataSet();
-                        dbDataAdapter.SelectCommand = dbCommand;
-                        dbDataAdapter.Fill(dataSet);
+            using DbConnection dbConnection = CreateConnection(connectionString, providerFactory);
+            using DbCommand dbCommand = CreateCommand(command, dbConnection);
+            using DbDataAdapter dbDataAdapter = providerFactory.CreateDataAdapter();
+            DataSet dataSet = new DataSet();
+            dbDataAdapter.SelectCommand = dbCommand;
+            dbDataAdapter.Fill(dataSet);
 
-                        if (command.IsStoredProcedure)
-                            FinalizeQuery(command, dbCommand);
+            if (command.IsStoredProcedure) FinalizeQuery(command, dbCommand);
 
-                        return dataSet;
-                    }
-                }
-            }
+            return dataSet;
+        }
+
+        /// <summary>
+        /// Create an instance of <see cref="DbConnection"/> with the connection string and database provider factory
+        /// </summary>
+        /// <param name="connectionString">Complete connection string</param>
+        /// <param name="providerFactory">Valable provider factory</param>
+        /// <returns>A <see cref="MySqlCon"/> object</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        internal static DbConnection CreateConnection(string connectionString, DbProviderFactory providerFactory)
+        {
+            if (connectionString is null) throw new ArgumentNullException(nameof(connectionString));
+            if (connectionString.Length == 0) throw new ArgumentException($"{nameof(connectionString)} is not a valid connection string");
+            if (providerFactory is null) throw new ArgumentNullException(nameof(providerFactory));
+
+            DbConnection dbConnection = providerFactory.CreateConnection();
+            dbConnection.ConnectionString = connectionString;
+
+            return dbConnection;
         }
 
         /// <summary>
@@ -222,18 +164,14 @@ namespace DevHopTools.Connection
             DbCommand dbCommand = dbConnection.CreateCommand();
             dbCommand.CommandText = command.Query;
 
-            if (command.IsStoredProcedure)
-                dbCommand.CommandType = CommandType.StoredProcedure;
+            if (command.IsStoredProcedure) dbCommand.CommandType = CommandType.StoredProcedure;
 
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
                 DbParameter dbParameter = dbCommand.CreateParameter();
                 dbParameter.ParameterName = parameter.Key;
                 dbParameter.Value = parameter.Value.ParameterValue;
-
-                if (parameter.Value.Direction == Direction.Output)
-                    dbParameter.Direction = ParameterDirection.Output;
-
+                if (parameter.Value.Direction == Direction.Output) dbParameter.Direction = ParameterDirection.Output;
                 dbCommand.Parameters.Add(dbParameter);
             }
 

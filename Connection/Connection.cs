@@ -6,6 +6,7 @@ using System.Data.Common;
 
 namespace DevHopTools.Connection
 {
+    [Obsolete("Don't use anymore", false)]
     public class Connection
     {
         /// <summary>
@@ -47,7 +48,7 @@ namespace DevHopTools.Connection
 
             try
             {
-                using (DbConnection dbConnection = CreateConnection())
+                using (DbConnection dbConnection = MSSQL.CreateConnection(_connectionString, _providerFactory))
                 {
                     dbConnection.Open();
                 }
@@ -69,11 +70,8 @@ namespace DevHopTools.Connection
         /// <exception cref="InvalidOperationException"></exception>
         public Connection(string connectionString, DbProviderFactory providerFactory, DbType dbType)
         {
-            if (providerFactory is null)
-                throw new ArgumentException("providerFactory is not valid !");
-
-            if (string.IsNullOrWhiteSpace(connectionString))
-                throw new ArgumentException("connectionString is not valid !");
+            if (providerFactory is null) throw new ArgumentException("providerFactory is not valid !");
+            if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("connectionString is not valid !");
 
             _connectionString = connectionString;
             _providerFactory = providerFactory;
@@ -180,14 +178,6 @@ namespace DevHopTools.Connection
                 default:
                     throw new InvalidOperationException($"Provided database type is not valid!");
             }
-        }
-
-        private DbConnection CreateConnection()
-        {
-            DbConnection dbConnection = _providerFactory.CreateConnection();
-            dbConnection.ConnectionString = _connectionString;
-
-            return dbConnection;
         }
     }
 }
