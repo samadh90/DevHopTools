@@ -1,44 +1,35 @@
----
-name: Bug report
-about: Créez un rapport pour nous aider à nous améliorer
-title: ''
-labels: bug
-assignees: ''
-
----
-
 ### Preflight Checklist
 
 <!-- Please ensure you've completed the following steps by replacing [ ] with [x]-->
 
-- [ ] J'ai recherché dans le suivi des problèmes un problème qui correspond à celui que je souhaite déposer, sans succès.
+- [ ] I searched the issue tracker for an issue that matches the one I want to file, with no success.
 
 #
 
-### Décrivez le bogue
+### Describe the bug
 
-Une description claire et concise de ce qu'est le bogue.
-
-#
-
-### Reproduire
-
-Étapes pour reproduire le comportement :
-
-1. Accédez à «...»
-2. Cliquez sur "...."
-3. Faites défiler jusqu'à «....»
-4. Voir erreur
+**A clear and concise description of what the bug is.**
 
 #
 
-### Qu'est-ce qui était attendu?
+### Reproduce
 
-Une description claire et concise de ce à quoi vous vous attendiez.
+Steps to reproduce the behavior :
+
+1. Access to «...»
+2. Click on "...."
+3. Scroll to «....»
+4. See error
 
 #
 
-### Captures d'écran
+### What was expected ?
+
+**A clear and concise description of what you expected.**
+
+#
+
+### Screenshots
 
 <!-- While providing screenshots, delete the text below !-->
 
@@ -46,10 +37,10 @@ Une description claire et concise de ce à quoi vous vous attendiez.
 
 <!-- Don't forget to delete the p element while providing screeshots !-->
 
-<p align="center">Le cas échéant, ajoutez des captures d'écran pour expliquer votre problème.</p>
+<p align="center">If applicable, add screenshots to explain your issue.</p>
 
 #
 
-### Contexte supplémentaire
+### Additional context
 
-Ajoutez tout autre contexte sur le problème ici (incluez les numéros de commit et les branches le cas échéant)
+**Add any other context about the issue here (include commit numbers and branches if applicable)**
