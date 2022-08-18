@@ -16,12 +16,12 @@ namespace DevHopTools.Connection
         /// <exception cref="ArgumentException"></exception>
         public MySqlCon(string connectionString)
         {
-            if (_connectionString is null)
+            if (connectionString is null)
             {
                 throw new ArgumentNullException(nameof(_connectionString));
             }
 
-            if (_connectionString.Length == 0)
+            if (connectionString.Length == 0)
             {
                 throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
             }
@@ -97,7 +97,7 @@ namespace DevHopTools.Connection
         /// <returns>A <see cref="IEnumerable{T}"/> with <c>T</c> being of type <typeparamref name="TResult"/></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public IEnumerable<TResult> ExecuteReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
+        public override IEnumerable<TResult> ExecuteReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
         {
             if (command is null)
             {

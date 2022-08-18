@@ -1,4 +1,7 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 
 namespace DevHopTools.Connection
 {
@@ -15,5 +18,7 @@ namespace DevHopTools.Connection
         internal abstract TCommand CreateCommand(Command command, TConnection dbConnection);
         internal abstract TConnection CreateConnection();
         internal abstract void FinalizeQuery(Command command, TCommand dbCommand);
+        public abstract IEnumerable<TResult> ExecuteReader<TResult>(Command command,
+            Func<IDataRecord, TResult> selector);
     }
 }

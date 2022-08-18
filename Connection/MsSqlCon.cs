@@ -64,7 +64,9 @@ namespace DevHopTools.Connection
             }
         }
 
-        public IEnumerable<TResult> ExecuteReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
+        public override IEnumerable<TResult> ExecuteReader<TResult>(
+            Command command,
+            Func<IDataRecord, TResult> selector)
         {
             using (DbConnection dbConnection = CreateConnection())
             {
