@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
-namespace DevHopTools.Connection
+namespace DevHopTools.DataAccess.Interfaces
 {
-    public interface IConnection
+    public interface IDevHopConnection
     {
         int ExecuteNonQuery(Command command);
         IEnumerable<TResult> ExecuteReader<TResult>(Command command, Func<IDataRecord, TResult> selector);

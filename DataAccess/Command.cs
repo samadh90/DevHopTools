@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using DevHopTools.DataAccess.Enums;
 
-namespace DevHopTools.Connection
+namespace DevHopTools.DataAccess
 {
     public class Command
     {

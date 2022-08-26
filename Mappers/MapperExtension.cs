@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Reflection;
 
-namespace DevHopTools.Extensions
+namespace DevHopTools.Mappers
 {
     public static class MapperExtension
     {
         public static TTo Map<TTo>(this object from)
             where TTo : new()
         {
-            // créer une instance vide du nouvel objet
+            // create an empty instance of the new object
             TTo result = new TTo();
             return from.MapToInstance(result);
         }
@@ -17,22 +17,25 @@ namespace DevHopTools.Extensions
             where TTo : new()
         {
             if (from is null) return default(TTo);
-            // récupérer toutes les propriétes de cet objet
+            // get all the properties of this object
             PropertyInfo[] toProperties = typeof(TTo).GetProperties();
             foreach (PropertyInfo toProperty in toProperties)
             {
-                // recuperer une propriété dans l'objet de départ qui porte le meme nom
+                // retrieve a property in the starting object that has the same name
                 PropertyInfo fromProp = from.GetType().GetProperty(toProperty.Name);
                 if (fromProp != null)
                 {
-                    // récupérer la valeur ds l'objet de départ
+                    // retrieve the value in the starting object
                     object value = fromProp.GetValue(from);
                     try
                     {
-                        // insérer cette valeur dans le nouvel objet
+                        // insert this value into the new object
                         toProperty.SetValue(result, value);
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
                 }
             }
             return result;

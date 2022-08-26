@@ -1,10 +1,12 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using DevHopTools.DataAccess.Enums;
+using DevHopTools.DataAccess.Interfaces;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
-namespace DevHopTools.Connection
+namespace DevHopTools.DataAccess.Connections
 {
     /// <summary>
     /// WARNING !
@@ -12,33 +14,11 @@ namespace DevHopTools.Connection
     /// basically, stored procedure means we can prepare a single code, and that code we can reuse again and again as per user requirement. 
     /// When we create the stored procedure, that means once we create the stored procedure that procedure, we can just call in your SQL statement to execute it.
     /// </summary>
-    public class SQLiteCo : BaseConnection<SqliteConnection, SqliteCommand>, IConnection
+    public class SQLiteCon : BaseConnection<SqliteConnection, SqliteCommand>, IDevHopConnection
     {
-        public SQLiteCo(string connectionString)
+        public SQLiteCon(string connectionString) : base(connectionString)
         {
-            if (_connectionString.Length == 0 || string.IsNullOrWhiteSpace(_connectionString))
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
-            _connectionString = connectionString;
             _providerFactory = SqliteFactory.Instance;
-        }
-
-        public SQLiteCo(string connectionString, DbProviderFactory providerFactory)
-        {
-            if (_providerFactory is null)
-            {
-                throw new ArgumentNullException($"{nameof(_providerFactory)}  is not valid !");
-            }
-
-            if (_connectionString.Length == 0 || string.IsNullOrWhiteSpace(_connectionString))
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
-            _connectionString = connectionString;
-            _providerFactory = providerFactory;
         }
 
         public int ExecuteNonQuery(Command command)
@@ -51,9 +31,7 @@ namespace DevHopTools.Connection
                     int rows = dbCommand.ExecuteNonQuery();
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, dbCommand);
-                    }
 
                     return rows;
                 }
@@ -70,15 +48,11 @@ namespace DevHopTools.Connection
                     using (SqliteDataReader dataReader = dbCommand.ExecuteReader())
                     {
                         while (dataReader.Read())
-                        {
                             yield return selector(dataReader);
-                        }
                     }
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, dbCommand);
-                    }
                 }
             }
         }
@@ -93,9 +67,7 @@ namespace DevHopTools.Connection
                     object result = dbCommand.ExecuteScalar();
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, dbCommand);
-                    }
 
                     return result is DBNull ? null : result;
                 }
@@ -115,9 +87,7 @@ namespace DevHopTools.Connection
                         dbDataAdapter.Fill(dataSet);
 
                         if (command.IsStoredProcedure)
-                        {
                             FinalizeQuery(command, dbCommand);
-                        }
 
                         return dataSet;
                     }
@@ -138,9 +108,7 @@ namespace DevHopTools.Connection
                         dbDataAdapter.Fill(dataTable);
 
                         if (command.IsStoredProcedure)
-                        {
                             FinalizeQuery(command, dbCommand);
-                        }
 
                         return dataTable;
                     }
@@ -154,9 +122,7 @@ namespace DevHopTools.Connection
             dbCommand.CommandText = command.Query;
 
             if (command.IsStoredProcedure)
-            {
                 dbCommand.CommandType = CommandType.StoredProcedure;
-            }
 
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
@@ -165,9 +131,7 @@ namespace DevHopTools.Connection
                 dbParameter.Value = parameter.Value.ParameterValue;
 
                 if (parameter.Value.Direction == Direction.Output)
-                {
                     dbParameter.Direction = ParameterDirection.Output;
-                }
 
                 dbCommand.Parameters.Add(dbParameter);
             }
@@ -188,9 +152,7 @@ namespace DevHopTools.Connection
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
                 if (parameter.Value.Direction == Direction.Output)
-                {
                     parameter.Value.ParameterValue = dbCommand.Parameters[parameter.Key].Value;
-                }
             }
         }
     }

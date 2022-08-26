@@ -1,4 +1,6 @@
-﻿namespace DevHopTools.Connection
+﻿using DevHopTools.DataAccess.Enums;
+
+namespace DevHopTools.DataAccess
 {
     internal class Parameter
     {
