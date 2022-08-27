@@ -1,48 +1,18 @@
-﻿using System;
+﻿using DevHopTools.DataAccess.Enums;
+using DevHopTools.DataAccess.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 
-namespace DevHopTools.Connection
+namespace DevHopTools.DataAccess.Connections
 {
-    public class MsSqlCon : BaseConnection<DbConnection, DbCommand>, IConnection
+    public class MsSqlCon : BaseConnection<DbConnection, DbCommand>, IDevHopConnection
     {
-        public MsSqlCon(string connectionString)
+        public MsSqlCon(string connectionString) : base(connectionString)
         {
-            if (_connectionString is null)
-            {
-                throw new ArgumentNullException(nameof(_connectionString));
-            }
-
-            if (_connectionString.Length == 0)
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
-            _connectionString = connectionString;
             _providerFactory = SqlClientFactory.Instance;
-        }
-
-        public MsSqlCon(string connectionString, DbProviderFactory providerFactory)
-        {
-            if (_connectionString is null)
-            {
-                throw new ArgumentNullException(nameof(_connectionString));
-            }
-
-            if (_connectionString.Length == 0)
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
-            if (_providerFactory is null)
-            {
-                throw new ArgumentNullException(nameof(_providerFactory));
-            }
-
-            _connectionString = connectionString;
-            _providerFactory = providerFactory;
         }
 
         public int ExecuteNonQuery(Command command)
@@ -55,9 +25,7 @@ namespace DevHopTools.Connection
                     int rows = dbCommand.ExecuteNonQuery();
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, dbCommand);
-                    }
 
                     return rows;
                 }
@@ -74,15 +42,11 @@ namespace DevHopTools.Connection
                     using (DbDataReader dataReader = dbCommand.ExecuteReader())
                     {
                         while (dataReader.Read())
-                        {
                             yield return selector(dataReader);
-                        }
                     }
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, dbCommand);
-                    }
                 }
             }
         }
@@ -97,34 +61,9 @@ namespace DevHopTools.Connection
                     object result = dbCommand.ExecuteScalar();
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, dbCommand);
-                    }
 
                     return result is DBNull ? null : result;
-                }
-            }
-        }
-
-        public DataTable GetDataTable(Command command)
-        {
-            using (DbConnection dbConnection = CreateConnection())
-            {
-                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
-                {
-                    using (DbDataAdapter dbDataAdapter = _providerFactory.CreateDataAdapter())
-                    {
-                        DataTable dataTable = new DataTable();
-                        dbDataAdapter.SelectCommand = dbCommand;
-                        dbDataAdapter.Fill(dataTable);
-
-                        if (command.IsStoredProcedure)
-                        {
-                            FinalizeQuery(command, dbCommand);
-                        }
-
-                        return dataTable;
-                    }
                 }
             }
         }
@@ -142,14 +81,56 @@ namespace DevHopTools.Connection
                         dbDataAdapter.Fill(dataSet);
 
                         if (command.IsStoredProcedure)
-                        {
                             FinalizeQuery(command, dbCommand);
-                        }
 
                         return dataSet;
                     }
                 }
             }
+        }
+
+        public DataTable GetDataTable(Command command)
+        {
+            using (DbConnection dbConnection = CreateConnection())
+            {
+                using (DbCommand dbCommand = CreateCommand(command, dbConnection))
+                {
+                    using (DbDataAdapter dbDataAdapter = _providerFactory.CreateDataAdapter())
+                    {
+                        DataTable dataTable = new DataTable();
+                        dbDataAdapter.SelectCommand = dbCommand;
+                        dbDataAdapter.Fill(dataTable);
+
+                        if (command.IsStoredProcedure)
+                            FinalizeQuery(command, dbCommand);
+
+                        return dataTable;
+                    }
+                }
+            }
+        }
+
+        internal override DbCommand CreateCommand(Command command, DbConnection dbConnection)
+        {
+            DbCommand dbCommand = dbConnection.CreateCommand();
+            dbCommand.CommandText = command.Query;
+
+            if (command.IsStoredProcedure)
+                dbCommand.CommandType = CommandType.StoredProcedure;
+
+            foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
+            {
+                DbParameter dbParameter = dbCommand.CreateParameter();
+                dbParameter.ParameterName = parameter.Key;
+                dbParameter.Value = parameter.Value.ParameterValue;
+
+                if (parameter.Value.Direction == Direction.Output)
+                    dbParameter.Direction = ParameterDirection.Output;
+
+                dbCommand.Parameters.Add(dbParameter);
+            }
+
+            return dbCommand;
         }
 
         internal override DbConnection CreateConnection()
@@ -160,41 +141,12 @@ namespace DevHopTools.Connection
             return dbConnection;
         }
 
-        internal override DbCommand CreateCommand(Command command, DbConnection dbConnection)
-        {
-            DbCommand dbCommand = dbConnection.CreateCommand();
-            dbCommand.CommandText = command.Query;
-
-            if (command.IsStoredProcedure)
-            {
-                dbCommand.CommandType = CommandType.StoredProcedure;
-            }
-
-            foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
-            {
-                DbParameter dbParameter = dbCommand.CreateParameter();
-                dbParameter.ParameterName = parameter.Key;
-                dbParameter.Value = parameter.Value.ParameterValue;
-
-                if (parameter.Value.Direction == Direction.Output)
-                {
-                    dbParameter.Direction = ParameterDirection.Output;
-                }
-
-                dbCommand.Parameters.Add(dbParameter);
-            }
-
-            return dbCommand;
-        }
-
         internal override void FinalizeQuery(Command command, DbCommand dbCommand)
         {
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
                 if (parameter.Value.Direction == Direction.Output)
-                {
                     parameter.Value.ParameterValue = dbCommand.Parameters[parameter.Key].Value;
-                }
             }
         }
     }

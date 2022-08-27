@@ -1,12 +1,13 @@
-﻿using MySqlConnector;
+﻿using DevHopTools.DataAccess.Enums;
+using DevHopTools.DataAccess.Interfaces;
+using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 
-namespace DevHopTools.Connection
+namespace DevHopTools.DataAccess.Connections
 {
-    public class MySqlCon : BaseConnection<MySqlConnection, MySqlCommand>, IConnection
+    public class MySqlCon : BaseConnection<MySqlConnection, MySqlCommand>, IDevHopConnection
     {
         /// <summary>
         /// MySqlConnection construction with a connection string to the database.
@@ -14,48 +15,9 @@ namespace DevHopTools.Connection
         /// <param name="connectionString">Complete database connection string</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public MySqlCon(string connectionString)
+        public MySqlCon(string connectionString) : base(connectionString)
         {
-            if (_connectionString is null)
-            {
-                throw new ArgumentNullException(nameof(_connectionString));
-            }
-
-            if (_connectionString.Length == 0)
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
-            _connectionString = connectionString;
             _providerFactory = MySqlConnectorFactory.Instance;
-        }
-
-        /// <summary>
-        /// MySqlConnection construction with a connection string to the database and the <paramref name="providerFactory"/>.
-        /// </summary>
-        /// <param name="connectionString">Complete database connection string</param>
-        /// <param name="providerFactory">Valid object of type <see cref="DbProviderFactory"/></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        public MySqlCon(string connectionString, DbProviderFactory providerFactory)
-        {
-            if (_connectionString is null)
-            {
-                throw new ArgumentNullException(nameof(_connectionString));
-            }
-
-            if (_connectionString.Length == 0)
-            {
-                throw new ArgumentException($"{nameof(_connectionString)} is not a valid connection string");
-            }
-
-            if (_providerFactory is null)
-            {
-                throw new ArgumentNullException(nameof(_providerFactory));
-            }
-
-            _connectionString = connectionString;
-            _providerFactory = providerFactory;
         }
 
         /// <summary>
@@ -67,9 +29,7 @@ namespace DevHopTools.Connection
         public int ExecuteNonQuery(Command command)
         {
             if (command is null)
-            {
                 throw new ArgumentNullException(nameof(command));
-            }
 
             using (MySqlConnection mySqlConnection = CreateConnection())
             {
@@ -79,9 +39,7 @@ namespace DevHopTools.Connection
                     int rows = mySqlCommand.ExecuteNonQuery();
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, mySqlCommand);
-                    }
 
                     return rows;
                 }
@@ -100,14 +58,10 @@ namespace DevHopTools.Connection
         public IEnumerable<TResult> ExecuteReader<TResult>(Command command, Func<IDataRecord, TResult> selector)
         {
             if (command is null)
-            {
                 throw new ArgumentNullException(nameof(command));
-            }
 
             if (selector is null)
-            {
                 throw new ArgumentNullException(nameof(selector));
-            }
 
             using (MySqlConnection mySqlConnection = CreateConnection())
             {
@@ -117,15 +71,11 @@ namespace DevHopTools.Connection
                     using (MySqlDataReader mySqlDataReader = mySqlCommand.ExecuteReader())
                     {
                         while (mySqlDataReader.Read())
-                        {
                             yield return selector(mySqlDataReader);
-                        }
                     }
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, mySqlCommand);
-                    }
                 }
             }
         }
@@ -139,9 +89,7 @@ namespace DevHopTools.Connection
         public object ExecuteScalar(Command command)
         {
             if (command is null)
-            {
                 throw new ArgumentNullException(nameof(command));
-            }
 
             using (MySqlConnection mySqlConnection = CreateConnection())
             {
@@ -151,19 +99,17 @@ namespace DevHopTools.Connection
                     object result = mySqlCommand.ExecuteScalar();
 
                     if (command.IsStoredProcedure)
-                    {
                         FinalizeQuery(command, mySqlCommand);
-                    }
 
                     return result is DBNull ? null : result;
                 }
             }
         }
 
-        // TODO : Write a complete comment
         public DataSet GetDataSet(Command command)
         {
-            if (command is null) throw new ArgumentNullException(nameof(command));
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
 
             using (MySqlConnection mySqlConnection = CreateConnection())
             {
@@ -176,9 +122,7 @@ namespace DevHopTools.Connection
                         mySqlDataAdapter.Fill(dataSet);
 
                         if (command.IsStoredProcedure)
-                        {
                             FinalizeQuery(command, mySqlCommand);
-                        }
 
                         return dataSet;
                     }
@@ -189,7 +133,8 @@ namespace DevHopTools.Connection
         // TODO : Write a complete comment
         public DataTable GetDataTable(Command command)
         {
-            if (command is null) throw new ArgumentNullException(nameof(command));
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
 
             using (MySqlConnection mySqlConnection = CreateConnection())
             {
@@ -202,9 +147,7 @@ namespace DevHopTools.Connection
                         mySqlDataAdapter.Fill(dataTable);
 
                         if (command.IsStoredProcedure)
-                        {
                             FinalizeQuery(command, mySqlCommand);
-                        }
 
                         return dataTable;
                     }
@@ -220,14 +163,11 @@ namespace DevHopTools.Connection
         /// <returns>A new instance of <see cref="MySqlCommand"/></returns>
         internal override MySqlCommand CreateCommand(Command command, MySqlConnection dbConnection)
         {
-
             MySqlCommand mySqlCommand = dbConnection.CreateCommand();
             mySqlCommand.CommandText = command.Query;
 
             if (command.IsStoredProcedure)
-            {
                 mySqlCommand.CommandType = CommandType.StoredProcedure;
-            }
 
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
@@ -236,9 +176,7 @@ namespace DevHopTools.Connection
                 mySqlParameter.Value = parameter.Value.ParameterValue;
 
                 if (parameter.Value.Direction == Direction.Output)
-                {
                     mySqlParameter.Direction = ParameterDirection.Output;
-                }
 
                 mySqlCommand.Parameters.Add(mySqlParameter);
             }
@@ -268,9 +206,7 @@ namespace DevHopTools.Connection
             foreach (KeyValuePair<string, Parameter> parameter in command.Parameters)
             {
                 if (parameter.Value.Direction == Direction.Output)
-                {
                     parameter.Value.ParameterValue = dbCommand.Parameters[parameter.Key].Value;
-                }
             }
         }
     }

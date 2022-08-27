@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DevHopTools.Internal.DataAccess
+namespace DevHopTools.DataAccess.Interfaces
 {
     public interface ISqlDataAccess
     {

@@ -1,4 +1,4 @@
-﻿namespace DevHopTools.Connection
+﻿namespace DevHopTools.DataAccess.Enums
 {
     public enum Direction
     {
