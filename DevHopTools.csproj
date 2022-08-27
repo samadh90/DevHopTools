@@ -1,15 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<PackageId>DevHopTools</PackageId>
-		<Version>1.1.0</Version>
+		<Version>1.2.2</Version>
 		<Copyright>DevHop@2022</Copyright>
 		<Title>DevHopTools</Title>
-		<Authors>Samad Hatsijev</Authors>
-		<Company>DevHops</Company>
+		<Authors>Samad and Soultan Hatsijev</Authors>
+		<Company>DevHop</Company>
 		<PackageDescription>DevHopTools for multiple puprose</PackageDescription>
-		<PackageTags>DevHopTools;Connection;Cryptography;MVVM;Commands;ViewModels</PackageTags>
+		<PackageTags>DevHopTools;DataAccess;Cryptography;MVVM;Commands;ViewModels</PackageTags>
 		<PackageProjectUrl>https://github.com/crysis90war/DevHopTools</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>git://github.com/crysis90war/DevHopTools</RepositoryUrl>
@@ -18,10 +17,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.0.123" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.7" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
 		<PackageReference Include="MySqlConnector" Version="2.1.8" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
 	</ItemGroup>
-
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DevHopTools.DataAccess.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -7,7 +8,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace DevHopTools.Internal.DataAccess
+namespace DevHopTools.DataAccess.Connections
 {
     public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
